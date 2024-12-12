@@ -1,0 +1,68 @@
+import numpy as np
+from netCDF4 import Dataset
+import matplotlib.pyplot as plt
+
+# Open the NetCDF file
+ncfile = Dataset('C:/Users/Mallma/Documents/Python Scripts/0.Other_projects/temperature_data.nc', 'r')
+
+# Read the variables
+times = ncfile.variables['time'][:]
+mean_temp = ncfile.variables['mean_temp'][:]
+max_temp = ncfile.variables['max_temp'][:]
+min_temp = ncfile.variables['min_temp'][:]
+
+# Close the file
+ncfile.close()
+
+# Convert temperatures from Kelvin to Celsius
+mean_temp_celsius = mean_temp - 273.15
+max_temp_celsius = max_temp - 273.15
+min_temp_celsius = min_temp - 273.15
+
+# Calculate hourly averages
+hours = 24
+hourly_mean_temp = np.array([np.mean(mean_temp_celsius[i::hours]) for i in range(hours)])
+hourly_max_temp = np.array([np.mean(max_temp_celsius[i::hours]) for i in range(hours)])
+hourly_min_temp = np.array([np.mean(min_temp_celsius[i::hours]) for i in range(hours)])
+hourly_times = np.arange(0, hours)
+
+# Create dummy data for standard deviation of temperature (random numbers from 2 to 6)
+std_dev_temp = np.random.uniform(2, 6, size=hours)
+
+# Print the data to verify
+print("Hourly Times:", hourly_times)
+print("Hourly Mean Temperatures (°C):", hourly_mean_temp)
+print("Hourly Max Temperatures (°C):", hourly_max_temp)
+print("Hourly Min Temperatures (°C):", hourly_min_temp)
+print("Standard Deviation of Temperatures (°C):", std_dev_temp)
+
+# Plot the data in 4 panels
+fig, axs = plt.subplots(4, 1, figsize=(10, 15), sharex=True)
+
+axs[0].plot(hourly_times, hourly_mean_temp, label='Mean Temperature (°C)', color='green')
+axs[0].set_ylabel('Temperature (°C)')
+axs[0].set_title('Hourly Mean Temperature')
+axs[0].legend()
+axs[0].grid(True)
+
+axs[1].plot(hourly_times, hourly_max_temp, label='Max Temperature (°C)', color='red')
+axs[1].set_ylabel('Temperature (°C)')
+axs[1].set_title('Hourly Max Temperature')
+axs[1].legend()
+axs[1].grid(True)
+
+axs[2].plot(hourly_times, hourly_min_temp, label='Min Temperature (°C)', color='blue')
+axs[2].set_ylabel('Temperature (°C)')
+axs[2].set_title('Hourly Min Temperature')
+axs[2].legend()
+axs[2].grid(True)
+
+axs[3].plot(hourly_times, std_dev_temp, label='Standard Deviation of Temperature (°C)', color='purple')
+axs[3].set_xlabel('Hour')
+axs[3].set_ylabel('Temperature (°C)')
+axs[3].set_title('Standard Deviation of Temperature')
+axs[3].legend()
+axs[3].grid(True)
+
+plt.xticks(ticks=hourly_times, labels=np.arange(1, hours + 1))
+plt.show()
